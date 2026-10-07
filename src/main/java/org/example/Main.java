@@ -1,215 +1,36 @@
 package org.example;
 
+import org.example.clases.Usuario;
+import org.example.clasesDAO.UsuarioDAO;
+import org.example.conexiones.DatabaseConnection;
+import org.example.implementaciones.UsuarioDAOImpl;
+
 import java.sql.*;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        DatabaseConnection bdConexion = new DatabaseConnection();
+        UsuarioDAO usuarioDAO = new UsuarioDAOImpl(bdConexion);
 
-        String url = "jdbc:sqlite:prueba.db";
+        //insertarUsuaro
+        Usuario nuevoUsuario = new Usuario(4, "Fatima", "Yaagoub", "calle portugal 8", "Consuegra");
+        usuarioDAO.insertarUsuario(nuevoUsuario);
 
-        Connection connection = null;
-        Statement stm = null;
-        PreparedStatement pstm = null;
-        ResultSet rts = null;
-        ResultSet rts1 = null;
-        ResultSet rts2 = null;
+        //buscarPorLocalidad
+        List<Usuario> usuarioList = usuarioDAO.buscarPorLocalidad("Madridejos");
+        System.out.println(usuarioList);
 
+        //actualizarUsuario
 
-
-        try {
-
-            // Conectar con la base de datos
-            connection = DriverManager.getConnection(url);
-            System.out.println("base de datos conectada con exito");
-
-            // Crear tabla
-            String sql = """
-                    CREATE TABLE IF NOT EXISTS Usuarios(
-                    cod INTEGER PRIMARY KEY,
-                    nombre VARCHAR(100),
-                    apellidos VARCHAR(100),
-                    direccion VARCHAR(300),
-                    localidad VARCHAR(100)
-                    )
-                    """;
-            String sql7 = """
-                    CREATE TABLE IF NOT EXISTS Telefonos(
-                    cod INTEGER,
-                    telefono VARCHAR(100),
-                    PRIMARY KEY (cod,telefono),
-                    FOREIGN KEY (cod) REFERENCES Usuarios(cod)
-                    )
-                    """;
-
-            stm = connection.createStatement();
-            stm.executeUpdate(sql);
-            stm.executeUpdate(sql7);
-
-            // Pedir localidad por teclado
-            Scanner sc = new Scanner(System.in);
-
-            System.out.println("introduce la localidad que quieres");
-            String locali = sc.nextLine();
+        Usuario usuarioNuevo = new Usuario(2, "Fatima", "WARDI", "calle portugal 8", "Madridejos");
+        usuarioDAO.actualizarUsuario(usuarioNuevo);
 
 
-            // INSERT usuario 1
-            String sql3 = """
-                    INSERT INTO Usuarios(cod, nombre, apellidos, direccion, localidad)
-                    VALUES
-                    (1, 'Juan', 'García López', 'Calle Mayor 10', 'Madridejos')
-                    """;
-
-            // INSERT usuario 2
-            String sql4 = """
-                    INSERT INTO Usuarios(cod, nombre, apellidos, direccion, localidad)
-                    VALUES
-                    (2, 'Ana', 'Martínez Pérez', 'Calle Sol 5', 'Toledo')
-                    """;
-
-            // INSERT usuario 3
-            String sql5 = """
-                    INSERT INTO Usuarios(cod, nombre, apellidos, direccion, localidad)
-                    VALUES
-                    (3, 'Pedro', 'Sánchez Ruiz', 'Calle Real 20', 'Madridejos')
-                    """;
-
-            String sql8 = """
-                    INSERT INTO Telefonos(cod,telefono)
-                    VALUES (1, '600123456')
-                    """;
-
-            String sql9 = """
-                    INSERT INTO Telefonos(cod, telefono)
-                    VALUES (1, '611234567')
-                    """;
-
-            String sql10 = """
-                    INSERT INTO Telefonos(cod, telefono)
-                    VALUES (2, '622345678')
-                    """;
-
-            String sql11 = """
-                    INSERT INTO Telefonos(cod, telefono)
-                    VALUES (3, '633456789')
-                    """;
-
-            String sql12 = """
-                    INSERT INTO Telefonos(cod, telefono)
-                    VALUES (3, '644567890')
-                    """;
-
-            // SELECT por localidad
-            String sql2 = """
-                    SELECT * FROM Usuarios WHERE localidad = ?
-                    """;
+        //eliminarUsuario
+        usuarioDAO.eliminarUsuario(2);
 
 
-            // Contar usuarios por localidad
-            String sql6 = """
-                    SELECT localidad, COUNT(*) AS cantidadUsuarios
-                    FROM Usuarios
-                    GROUP BY localidad
-                    """;
-
-            String sql13= """
-                    SELECT u.cod,u.nombre,u.apellidos,u.direccion,u.localidad,t.telefono
-                    FROM Usuarios u JOIN Telefonos t
-                    ON u.cod=t.cod
-                    """;
-
-            // Insertar usuarios
-            stm.executeUpdate(sql3);
-            stm.executeUpdate(sql4);
-            stm.executeUpdate(sql5);
-            stm.executeUpdate(sql8);
-            stm.executeUpdate(sql9);
-            stm.executeUpdate(sql10);
-            stm.executeUpdate(sql11);
-            stm.executeUpdate(sql12);
-
-
-
-
-            // Ejecutar SELECT por localidad
-            pstm = connection.prepareStatement(sql2);
-            pstm.setString(1, locali);
-            rts = pstm.executeQuery();
-
-            System.out.println("\nUsuarios de la localidad seleccionada:");
-
-            while (rts.next()) {
-
-                Usuario usuario =new Usuario(
-                        rts.getInt("cod"),
-                        rts.getString("nombre"),
-                        rts.getString("apellidos"),
-                        rts.getString("direccion"),
-                        rts.getString("localidad")
-
-               );
-
-                System.out.println(usuario);
-            }
-
-            // Ejecutar SELECT con GROUP BY
-            rts1 = stm.executeQuery(sql6);
-
-            System.out.println("\nCantidad de usuarios por localidad:");
-
-            while (rts1.next()) {
-
-                String localidad = rts1.getString("localidad");
-                int cantidad = rts1.getInt("cantidadUsuarios");
-
-                System.out.println(
-                        "localidad: " + localidad +
-                                " - cantidadUsuarios: " + cantidad
-                );
-            }
-
-            //EJECUTAR SELECT DE TELEFONOS
-            rts2=stm.executeQuery(sql13);
-
-            System.out.println("usario con su telefono");
-            while(rts2.next()){
-
-
-                Usuario usuario =new Usuario(
-                        rts2.getInt("cod"),
-                        rts2.getString("nombre"),
-                        rts2.getString("apellidos"),
-                        rts2.getString("direccion"),
-                        rts2.getString("localidad")
-
-                );
-                String telefono=rts2.getString("telefono");
-
-                System.out.println( usuario+" - telefono:  " +telefono);
-
-            }
-
-
-            System.out.println("\nresultados recorridos con exito");
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(e);
-
-        } finally {
-
-            try {
-                if (rts2 !=null) rts2.close();
-                if (rts1 != null) rts1.close();
-                if (rts != null) rts.close();
-                if (pstm != null) pstm.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-
-            } catch (SQLException e) {
-
-                throw new RuntimeException(e);
-            }
-        }
     }
 }
