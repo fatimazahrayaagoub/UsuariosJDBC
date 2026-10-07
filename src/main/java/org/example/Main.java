@@ -13,6 +13,9 @@ public class Main {
         PreparedStatement pstm = null;
         ResultSet rts = null;
         ResultSet rts1 = null;
+        ResultSet rts2 = null;
+
+
 
         try {
 
@@ -30,9 +33,18 @@ public class Main {
                     localidad VARCHAR(100)
                     )
                     """;
+            String sql7 = """
+                    CREATE TABLE IF NOT EXISTS Telefonos(
+                    cod INTEGER,
+                    telefono VARCHAR(100),
+                    PRIMARY KEY (cod,telefono),
+                    FOREIGN KEY (cod) REFERENCES Usuarios(cod)
+                    )
+                    """;
 
             stm = connection.createStatement();
             stm.executeUpdate(sql);
+            stm.executeUpdate(sql7);
 
             // Pedir localidad por teclado
             Scanner sc = new Scanner(System.in);
@@ -40,10 +52,6 @@ public class Main {
             System.out.println("introduce la localidad que quieres");
             String locali = sc.nextLine();
 
-            // SELECT por localidad
-            String sql2 = """
-                    SELECT * FROM Usuarios WHERE localidad = ?
-                    """;
 
             // INSERT usuario 1
             String sql3 = """
@@ -66,6 +74,37 @@ public class Main {
                     (3, 'Pedro', 'Sánchez Ruiz', 'Calle Real 20', 'Madridejos')
                     """;
 
+            String sql8 = """
+                    INSERT INTO Telefonos(cod,telefono)
+                    VALUES (1, '600123456')
+                    """;
+
+            String sql9 = """
+                    INSERT INTO Telefonos(cod, telefono)
+                    VALUES (1, '611234567')
+                    """;
+
+            String sql10 = """
+                    INSERT INTO Telefonos(cod, telefono)
+                    VALUES (2, '622345678')
+                    """;
+
+            String sql11 = """
+                    INSERT INTO Telefonos(cod, telefono)
+                    VALUES (3, '633456789')
+                    """;
+
+            String sql12 = """
+                    INSERT INTO Telefonos(cod, telefono)
+                    VALUES (3, '644567890')
+                    """;
+
+            // SELECT por localidad
+            String sql2 = """
+                    SELECT * FROM Usuarios WHERE localidad = ?
+                    """;
+
+
             // Contar usuarios por localidad
             String sql6 = """
                     SELECT localidad, COUNT(*) AS cantidadUsuarios
@@ -73,10 +112,24 @@ public class Main {
                     GROUP BY localidad
                     """;
 
+            String sql13= """
+                    SELECT u.cod,u.nombre,u.apellidos,u.direccion,u.localidad,t.telefono
+                    FROM Usuarios u JOIN Telefonos t
+                    ON u.cod=t.cod
+                    """;
+
             // Insertar usuarios
             stm.executeUpdate(sql3);
             stm.executeUpdate(sql4);
             stm.executeUpdate(sql5);
+            stm.executeUpdate(sql8);
+            stm.executeUpdate(sql9);
+            stm.executeUpdate(sql10);
+            stm.executeUpdate(sql11);
+            stm.executeUpdate(sql12);
+
+
+
 
             // Ejecutar SELECT por localidad
             pstm = connection.prepareStatement(sql2);
@@ -118,6 +171,31 @@ public class Main {
                 );
             }
 
+            //EJECUTAR SELECT DE TELEFONOS
+            rts2=stm.executeQuery(sql13);
+
+            System.out.println("usario con su telefono");
+            while(rts2.next()){
+
+                int cod = rts2.getInt("cod");
+                String nombre = rts2.getString("nombre");
+                String apellidos = rts2.getString("apellidos");
+                String direccion = rts2.getString("direccion");
+                String localidad = rts2.getString("localidad");
+                String telefono=rts2.getString("telefono");
+
+                System.out.println(
+                        "codigo: " + cod +
+                                " - nombre: " + nombre +
+                                " - apellidos: " + apellidos +
+                                " - direccion: " + direccion +
+                                " - localidad: " + localidad +
+                                " - telefono:  " +telefono
+                );
+
+            }
+
+
             System.out.println("\nresultados recorridos con exito");
 
         } catch (SQLException e) {
@@ -127,9 +205,9 @@ public class Main {
         } finally {
 
             try {
-
-                if (rts != null) rts.close();
+                if (rts2 !=null) rts2.close();
                 if (rts1 != null) rts1.close();
+                if (rts != null) rts.close();
                 if (pstm != null) pstm.close();
                 if (stm != null) stm.close();
                 if (connection != null) connection.close();
