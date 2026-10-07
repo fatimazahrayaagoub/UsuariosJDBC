@@ -140,19 +140,16 @@ public class Main {
 
             while (rts.next()) {
 
-                int cod = rts.getInt("cod");
-                String nombre = rts.getString("nombre");
-                String apellidos = rts.getString("apellidos");
-                String direccion = rts.getString("direccion");
-                String localidad = rts.getString("localidad");
+                Usuario usuario =new Usuario(
+                        rts.getInt("cod"),
+                        rts.getString("nombre"),
+                        rts.getString("apellidos"),
+                        rts.getString("direccion"),
+                        rts.getString("localidad")
 
-                System.out.println(
-                        "codigo: " + cod +
-                                " - nombre: " + nombre +
-                                " - apellidos: " + apellidos +
-                                " - direccion: " + direccion +
-                                " - localidad: " + localidad
-                );
+               );
+
+                System.out.println(usuario);
             }
 
             // Ejecutar SELECT con GROUP BY
@@ -177,21 +174,18 @@ public class Main {
             System.out.println("usario con su telefono");
             while(rts2.next()){
 
-                int cod = rts2.getInt("cod");
-                String nombre = rts2.getString("nombre");
-                String apellidos = rts2.getString("apellidos");
-                String direccion = rts2.getString("direccion");
-                String localidad = rts2.getString("localidad");
+
+                Usuario usuario =new Usuario(
+                        rts2.getInt("cod"),
+                        rts2.getString("nombre"),
+                        rts2.getString("apellidos"),
+                        rts2.getString("direccion"),
+                        rts2.getString("localidad")
+
+                );
                 String telefono=rts2.getString("telefono");
 
-                System.out.println(
-                        "codigo: " + cod +
-                                " - nombre: " + nombre +
-                                " - apellidos: " + apellidos +
-                                " - direccion: " + direccion +
-                                " - localidad: " + localidad +
-                                " - telefono:  " +telefono
-                );
+                System.out.println( usuario+" - telefono:  " +telefono);
 
             }
 
